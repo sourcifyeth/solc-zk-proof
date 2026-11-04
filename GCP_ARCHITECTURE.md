@@ -6,7 +6,7 @@ A Cloud Run Job makes proofs for compilations that are verified on Sourcify. The
 
 | Part | What it does |
 | --- | --- |
-| Cloud Scheduler | Starts the job at a fixed interval. |
+| Sourcify server | Adds a queued row for a compilation, then starts a job execution through the Cloud Run Admin API. |
 | Cloud Run Job | Prepares the input, talks to the prover network, checks and stores the proofs. |
 | Cloud Storage bucket | Holds `program.elf` and `build.json` for each solc build, at a path that contains the program key. |
 | Sourcify Postgres | Holds the sources and settings, and a new table with one row per `(compilation_id, program_vkey)`. The table is also the work queue. |
@@ -18,14 +18,15 @@ A Cloud Run Job makes proofs for compilations that are verified on Sourcify. The
 ```mermaid
 sequenceDiagram
     autonumber
-    participant S as Cloud Scheduler
+    participant SV as Sourcify server
     participant J as Cloud Run Job
     participant B as Bucket
     participant DB as Sourcify Postgres
     participant N as Succinct prover network
 
-    S->>J: start a run
-    J->>DB: claim a queued compilation (status executing)
+    SV->>DB: add a row for the compilation (status queued)
+    SV->>J: start a job execution (Cloud Run Admin API)
+    J->>DB: claim a queued row (status executing)
     J->>B: download program.elf for the solc version
     J->>J: compare the program key with the pinned list
     J->>DB: read sources and settings
@@ -47,6 +48,7 @@ sequenceDiagram
 
 ## Notes
 
+- **The job takes queued rows, not one compilation ID.** So it also picks up rows that earlier runs left behind, for example after an auction timeout. Two executions at the same time take different rows (`SELECT … FOR UPDATE SKIP LOCKED`).
 - **Local execution is free.** It gives the cycle count and the claim. The job pays only after the claim matches the code hashes in the database.
 - **The request is the step that costs money.** The job stores `request_id` before it waits. After a crash, the next run finds the row with status `requested` and calls `wait_proof` on the stored ID. It never sends a second request for the same compilation.
 - **Two limits cap the cost.** `cycle_limit` comes from the local execution. `max_price_per_pgu` is the highest price per unit of prover gas. If no prover accepts the price, the request fails after the auction timeout and the row goes back to `queued`.
