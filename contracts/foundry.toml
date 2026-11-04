@@ -1,0 +1,10 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.30"
+evm_version = "prague"
+fs_permissions = [{ access = "read", path = "../examples" }, { access = "read", path = "../jobs" }]
+
+[rpc_endpoints]
+sepolia = "https://ethereum-sepolia-rpc.publicnode.com"

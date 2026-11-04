@@ -1,0 +1,6 @@
+{
+  "chainId": 11155111,
+  "address": "0xffD6151Be39D250058911ffcbdb227d4274D40E4",
+  "contract": "src/Counter.sol:Counter",
+  "compilerVersion": "0.8.38+commit.1835d247"
+}

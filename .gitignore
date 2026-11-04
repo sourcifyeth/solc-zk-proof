@@ -1,0 +1,9 @@
+/target
+/guest/target
+/.cache
+/builds
+/jobs
+proof-mock.json
+/contracts/out
+/contracts/cache
+/contracts/broadcast

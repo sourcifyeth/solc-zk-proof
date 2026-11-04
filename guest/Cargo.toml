@@ -1,0 +1,10 @@
+# The zkVM program. scripts/build.sh builds it with `cargo prove build`, once per solc version.
+[workspace]
+members = ["runtime", "program", "claim"]
+resolver = "2"
+
+[workspace.dependencies]
+sp1-zkvm = "6.10.0"
+
+[profile.release]
+debug = false

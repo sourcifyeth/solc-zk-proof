@@ -1,0 +1,11 @@
+[package]
+name = "solc-zk-proof-guest"
+version = "0.1.0"
+edition = "2021"
+license = "GPL-3.0-only"
+
+[dependencies]
+sp1-zkvm = { workspace = true }
+cxx-runtime = { path = "../runtime" }
+solc-zk-proof-claim = { path = "../claim" }
+alloy-sol-types = "1.3"
